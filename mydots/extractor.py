@@ -11,11 +11,12 @@ class Extractor:
         options_dict = vars(options)
         self.separator = options_dict["separator"]
         self.raw_strings = options_dict["raw_strings"]
-        self.patterns: list[str] = args
-        self.post_init()
+        self.patterns = args
+        self.data = self.load()
 
-    def post_init(self) -> None:
-        self.data = json.load(sys.stdin)
+    @staticmethod
+    def load() -> dict:
+        return json.load(sys.stdin)
 
     def extract(self) -> None:
         self.extract_many()
