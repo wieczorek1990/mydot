@@ -1,6 +1,0 @@
-CLOSING_BRACKET = "]"
-DOT = "."
-EMPTY = ""
-NEWLINE = "\n"
-OPENING_BRACKET = "["
-SPACE = " "

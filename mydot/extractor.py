@@ -3,23 +3,18 @@ import re
 import sys
 import typing
 
-from mydot import constants
-
 
 class Extractor:
     SPLIT_REGEX = re.compile(r"\.?(\w+)|\[(\d+)\]|.+")
 
     def __init__(self, options: dict[str, typing.Any], args: list[str]) -> None:
         options_dict = vars(options)
-        self.output_newlines = options_dict["output_newlines"]
+        self.separator = options_dict["separator"]
         self.raw_strings = options_dict["raw_strings"]
         self.patterns: list[str] = args
         self.post_init()
 
     def post_init(self) -> None:
-        self.separator = (
-            constants.NEWLINE if self.output_newlines else constants.SPACE
-        )
         self.data = json.load(sys.stdin)
 
     def extract(self) -> None:
@@ -40,14 +35,14 @@ class Extractor:
         try:
             parts = self.split(pattern)
             for part in parts:
-                if all([group == constants.EMPTY for group in part]):
+                if all([not group for group in part]):
                     return None
-                elif part[0] != constants.EMPTY:
+                elif part[0]:
                     if not isinstance(data, dict):
                         return None
                     key = part[0]
                     value = data[key]
-                elif part[1] != constants.EMPTY:
+                elif part[1]:
                     if not isinstance(data, list):
                         return None
                     index_string = part[1]
