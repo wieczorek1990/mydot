@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mydots"
-version = "0.1.2"
+version = "0.1.3"
 description = "A simple JSON parser."
 authors = ["Łukasz Wieczorek <wieczorek1990@gmail.com>"]
 readme = "readme.md"
