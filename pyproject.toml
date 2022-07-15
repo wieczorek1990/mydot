@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "mydot"
+name = "mydots"
 version = "0.1.0"
 description = "A simple JSON parser."
 authors = ["Łukasz Wieczorek <wieczorek1990@gmail.com>"]

@@ -1,6 +1,6 @@
 import optparse
 
-from mydot import extractor
+from mydots import extractor
 
 
 parser = optparse.OptionParser()
