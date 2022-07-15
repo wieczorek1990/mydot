@@ -1,15 +1,15 @@
 [tool.poetry]
 name = "mydots"
-version = "0.1.1"
+version = "0.1.2"
 description = "A simple JSON parser."
 authors = ["Łukasz Wieczorek <wieczorek1990@gmail.com>"]
-readme = "README.md"
+readme = "readme.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
 
 [tool.poetry.scripts]
-mydots = 'mydots.cli:main'
+mydots = 'mydots.__main__:cli.main'
 
 [build-system]
 requires = ["poetry-core"]
