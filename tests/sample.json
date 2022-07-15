@@ -1,0 +1,19 @@
+{
+    "null": null,
+    "boolean_true": true,
+    "boolean_false": false,
+    "string": "I am alive!",
+    "integer": 1,
+    "floating": 1.0,
+    "list_empty": [],
+    "list_bool": [true, false],
+    "list_strings": ["one", "two"],
+    "list_integers": [0, 1],
+    "list_floating": [0.0, 1.0],
+    "list_list": [[0, 1]],
+    "list_object": [{"string": "I am alive!"}],
+    "object": {
+        "string": "I am alive!",
+        "list_integers": [0, 1]
+    }
+}
