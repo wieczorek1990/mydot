@@ -1,9 +1,18 @@
 import optparse
+import typing
 
-from mydots import extractor
+from mydots import extractors
 
 
-parser = optparse.OptionParser()
+class OptionParser(optparse.OptionParser):
+    def parse_args_and_values(
+        self, args=None, values=None
+    ) -> tuple[dict[str, typing.Any], list[str]]:
+        options, args = super().parse_args(args=args, values=values)
+        return vars(options), args
+
+
+parser = OptionParser()
 parser.add_option(
     "-s",
     "--separator",
@@ -20,9 +29,10 @@ parser.add_option(
 )
 
 
-def main():
-    options, args = parser.parse_args()
+def main() -> None:
+    options, args = parser.parse_args_and_values()
     if len(args) == 0:
         print("Please provide patterns.")
         exit(1)
-    extractor.Extractor(options, args).extract()
+    extractor = extractors.Extractor(options, args)
+    extractor.extract()
