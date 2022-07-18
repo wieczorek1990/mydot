@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cat tests/sample.json | python -m mydots "$@"
+

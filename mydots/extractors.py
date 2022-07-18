@@ -6,13 +6,18 @@ import typing
 
 class Extractor:
     # .identifier | ["identifier.with.dots"] | [index_string] | anything
-    SPLIT_REGEX = re.compile(r"\.(\w+)|\[[\"\']([.\w]+)[\"\']\]|\[(\d+)\]|(.+)")
+    SPLIT_REGEX = re.compile(
+        r"\.(\w+)|\[\"([.\w]+)\"\]|\[\'([.\w]+)\'\]|\[(\d+)\]|(.+)"
+    )
 
     def __init__(self, options: dict[str, typing.Any], args: list[str]) -> None:
         self.separator = options["separator"]
         self.raw_strings = options["raw_strings"]
         self.patterns = args
         self.data = self.load()
+
+    def set_patterns(self, patterns: list[str]) -> None:
+        self.patterns = patterns
 
     @staticmethod
     def load() -> dict[str, typing.Any]:
@@ -40,6 +45,21 @@ class Extractor:
     def split(self, pattern: str) -> list[str]:
         return self.SPLIT_REGEX.findall(pattern)
 
+    @staticmethod
+    def get_dict_value(data: typing.Any, key: str) -> typing.Any:
+        if not isinstance(data, dict):
+            raise TypeError('Not a dict.')
+        value = data[key]
+        return value
+
+    @staticmethod
+    def get_list_value(data: typing.Any, index_string: str) -> typing.Any:
+        if not isinstance(data, list):
+            return None
+        index = int(index_string)
+        value = data[index]
+        return value
+
     def extract_one(self, pattern: str) -> typing.Optional[typing.Any]:
         data = self.data.copy()
         value = data
@@ -48,18 +68,14 @@ class Extractor:
             for part in parts:
                 if all([not group for group in part]):
                     return None
-                elif (identifier := part[0]) or (
-                    identifier_with_dots := part[1]
-                ):
-                    if not isinstance(data, dict):
-                        return None
-                    key = identifier if identifier else identifier_with_dots
-                    value = data[key]
-                elif index_string := part[2]:
-                    if not isinstance(data, list):
-                        return None
-                    index = int(index_string)
-                    value = data[index]
+                elif key := part[0]:
+                    value = self.get_dict_value(data, key)
+                elif key := part[1]:
+                    value = self.get_dict_value(data, key)
+                elif key := part[2]:
+                    value = self.get_dict_value(data, key)
+                elif index_string := part[3]:
+                    value = self.get_list_value(data, index_string)
                 else:
                     return None
                 data = value
