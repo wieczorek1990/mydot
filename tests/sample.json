@@ -15,5 +15,6 @@
     "object": {
         "string": "I am alive!",
         "list_integers": [0, 1]
-    }
+    },
+    "identifier.with.dots": true
 }

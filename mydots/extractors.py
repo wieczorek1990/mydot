@@ -6,7 +6,7 @@ import typing
 
 class Extractor:
     # .identifier | ["identifier.with.dots"] | [index_string] | anything
-    SPLIT_REGEX = re.compile(r"\.(\w+)|\[\"(\w+)\"\]|\[(\d+)\]|(.+)")
+    SPLIT_REGEX = re.compile(r"\.(\w+)|\[[\"\']([.\w]+)[\"\']\]|\[(\d+)\]|(.+)")
 
     def __init__(self, options: dict[str, typing.Any], args: list[str]) -> None:
         self.separator = options["separator"]
@@ -29,7 +29,7 @@ class Extractor:
                 else:
                     string_value = json.dumps(value)
             else:
-                string_value = "\n"
+                string_value = ""
             string_values.append(string_value)
         print(*string_values, sep=self.separator)
         return values
@@ -43,8 +43,8 @@ class Extractor:
     def extract_one(self, pattern: str) -> typing.Optional[typing.Any]:
         data = self.data.copy()
         value = data
+        parts = self.split(pattern)
         try:
-            parts = self.split(pattern)
             for part in parts:
                 if all([not group for group in part]):
                     return None
@@ -60,8 +60,6 @@ class Extractor:
                         return None
                     index = int(index_string)
                     value = data[index]
-                elif part[3]:  # anything
-                    return None
                 else:
                     return None
                 data = value
