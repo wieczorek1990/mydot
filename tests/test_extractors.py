@@ -3,6 +3,7 @@ import sys
 import unittest
 
 from mydots import extractors
+from mydots import results
 
 
 class QuietTestCase(unittest.TestCase):
@@ -29,65 +30,61 @@ class ExtractorsTestCase(FullDiffTestCase, QuietTestCase):
         super().setUp()
 
         self.options = {"separator": "\n", "raw_strings": True}
-        self.args = [
-            "",
-            "invalid",
-            ".null",
-            ".boolean_true",
-            ".boolean_false",
-            ".string",
-            ".integer",
-            ".floating",
-            ".list_empty",
-            ".list_bool",
-            ".list_strings",
-            ".list_integers",
-            ".list_floating",
-            ".list_list",
-            ".list_object",
-            ".object",
-            '["list_bool"]',
-            '["identifier.with.dots"]',
-            "['identifier.with.dots']",
-            ".list_bool[0]",
-            ".object.string",
-            ".list_list[0][0]",
+        self.empty = results.Empty()
+        self.string = "I am alive!"
+        self.test_cases = [
+            # invalid
+            ("invalid", self.empty),
+            ("['null\"]", self.empty),
+            ('[\"null\']', self.empty),
+            # valid
+            ("['null']", None),
+            ('["null"]', None),
+            (".null", None),
+            (".boolean_true", True),
+            (".boolean_false", False),
+            (".string", self.string),
+            (".integer", 1),
+            (".floating", 1.0),
+            (".list_empty", []),
+            (".list_bool", [True, False]),
+            (".list_bool[0]", True),
+            (".list_strings", ["one", "two"]),
+            (".list_integers", [0, 1]),
+            (".list_floating", [0.0, 1.0]),
+            (".list_list", [[0, 1]]),
+            (".list_list[0][0]", 0),
+            (".list_object", [{"string": self.string}]),
+            (".object", {"string": self.string, "list_integers": [0, 1]}),
+            (".object.string", self.string),
+            ('["list_bool"]', [True, False]),
+            ('["identifier.with.dots"]', True),
+            ("['identifier.with.dots']", True),
         ]
+        self.args = [test_case[0] for test_case in self.test_cases]
+        self.expected = [test_case[1] for test_case in self.test_cases]
 
-        with open("tests/sample.json") as file_descriptor:
-            content = file_descriptor.read()
-            sys.stdin = io.StringIO(content)
+        self.paste()
 
     def tearDown(self) -> None:
         sys.stdin = sys.__stdin__
 
         super().tearDown()
 
+    @staticmethod
+    def paste():
+        with open("tests/sample.json") as file_descriptor:
+            content = file_descriptor.read()
+            sys.stdin = io.StringIO(content)
+
     def test_extractor(self) -> None:
         extractor = extractors.Extractor(self.options, self.args)
         extracted = extractor.extract()
-        expected = [
-            extractor.data,
-            None,
-            None,
-            True,
-            False,
-            "I am alive!",
-            1,
-            1.0,
-            [],
-            [True, False],
-            ["one", "two"],
-            [0, 1],
-            [0.0, 1.0],
-            [[0, 1]],
-            [{"string": "I am alive!"}],
-            {"string": "I am alive!", "list_integers": [0, 1]},
-            [True, False],
-            True,
-            True,
-            True,
-            "I am alive!",
-            0,
-        ]
-        self.assertEqual(extracted, expected)
+        self.assertEqual(extracted, self.expected)
+
+    def test_extractor_copy(self):
+        extractor = extractors.Extractor(self.options, [''])
+        extracted = extractor.extract()
+        first_extracted = extracted[0]
+        extractor_data = extractor.data
+        self.assertEqual(first_extracted, extractor_data)

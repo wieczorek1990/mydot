@@ -3,9 +3,11 @@ import re
 import sys
 import typing
 
+from mydots import results
+
 
 class Extractor:
-    # .identifier | ["identifier.with.dots"] | [index_string] | anything
+    # .identifier | ["identifier"] | ['identifier'] | [index_string] | anything
     SPLIT_REGEX = re.compile(
         r"\.(\w+)|\[\"([.\w]+)\"\]|\[\'([.\w]+)\'\]|\[(\d+)\]|(.+)"
     )
@@ -28,7 +30,7 @@ class Extractor:
         string_values = []
         for value in self.extract_many():
             values.append(value)
-            if value is not None:
+            if not isinstance(value, results.Empty):
                 if self.raw_strings and isinstance(value, str):
                     string_value = value
                 else:
@@ -48,14 +50,14 @@ class Extractor:
     @staticmethod
     def get_dict_value(data: typing.Any, key: str) -> typing.Any:
         if not isinstance(data, dict):
-            raise TypeError('Not a dict.')
+            raise TypeError("Not a dict.")
         value = data[key]
         return value
 
     @staticmethod
     def get_list_value(data: typing.Any, index_string: str) -> typing.Any:
         if not isinstance(data, list):
-            return None
+            raise TypeError("Not a list.")
         index = int(index_string)
         value = data[index]
         return value
@@ -64,11 +66,9 @@ class Extractor:
         data = self.data.copy()
         value = data
         parts = self.split(pattern)
-        try:
-            for part in parts:
-                if all([not group for group in part]):
-                    return None
-                elif key := part[0]:
+        for part in parts:
+            try:
+                if key := part[0]:
                     value = self.get_dict_value(data, key)
                 elif key := part[1]:
                     value = self.get_dict_value(data, key)
@@ -77,8 +77,8 @@ class Extractor:
                 elif index_string := part[3]:
                     value = self.get_list_value(data, index_string)
                 else:
-                    return None
+                    return results.Empty()
                 data = value
-        except (IndexError, KeyError, TypeError, ValueError):
-            return None
+            except (IndexError, KeyError, TypeError, ValueError):
+                return results.Empty()
         return value
