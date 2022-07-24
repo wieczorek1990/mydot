@@ -9,7 +9,7 @@ readme = "readme.md"
 python = "^3.10"
 
 [tool.poetry.scripts]
-mydots = 'mydots.__main__:cli.main'
+mydots = 'mydots.cli:main'
 
 [build-system]
 requires = ["poetry-core"]
